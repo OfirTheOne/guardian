@@ -2,7 +2,7 @@ import {GuardianOptions} from './guardian-options';
 export interface GuardianLayer extends GuardianOptions {
 
 
-    guardFunction: Function;
+    guardAction: Function;
     name: string;
 
 }

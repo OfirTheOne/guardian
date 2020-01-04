@@ -1,6 +1,8 @@
 export interface GuardianOptions {
+    layerKey?: string | number;
     optional?: boolean;
-    errorMassage?: string;
+    errorMessage?: string;
     each?: boolean;
-    path: string;
+    disabled?: boolean
+    path: string | Array<string>;
 }

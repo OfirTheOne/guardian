@@ -2,7 +2,7 @@
   "name": "guardian",
   "version": "1.0.0",
   "description": "Guardian - Validation Module.",
-  "main": "dist/index.js",
+  "main": "dist-prod/index.js",
   "types": "dist/index.d.ts",
   "author": "Ofir G.",
   "os": [
@@ -23,7 +23,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build-dev": "tsc -p tsconfig.dev.json",
+    "build-prod": "tsc -p tsconfig.prod.json",
     "start": "ts-node ./src/index.ts"
   },
   "license": "ISC",
@@ -33,6 +34,6 @@
     "typescript": "^3.7.4"
   },
   "files": [
-    "dist/**"
+    "dist-prod/**"
   ]
 }

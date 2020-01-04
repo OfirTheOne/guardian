@@ -1,9 +1,11 @@
 
 import { Guardian } from './../lib'
-import { CustomContext } from './../lib/core/contexts'
+import { CustomRegistryContext } from './../lib/core/custom-registry';
+
+import { NotNull, NotUndefined, Gt, RunCustom } from './../lib/core/layer-operators';
 
 
-CustomContext.registerCustomFunction(
+CustomRegistryContext.registerCustomFunction(
     'start-with-X', 
     function(name: string) { 
         const prefix = this.args[0]; // dynamically bound context
@@ -15,39 +17,45 @@ CustomContext.registerCustomFunction(
 const guardian = new Guardian(); // instantiate an Guardian object to build the validation layers on top.
 
 
+
 guardian.on({ 
     path: 'data.address', 
-    errorMassage: 'address is required' 
-}).        
-existent.isNotNull()
-        .isNotUndefined();
+    errorMessage: 'address is required' 
+}).add([
+    NotNull(), 
+    NotUndefined()
+]);
 
 
 guardian.on({ 
-    path: 'name',                 
-    errorMassage: 'name must start with B' 
-}).        
-custom.run('start-with-X', 'B');
+    path: 'name', 
+    errorMessage: 'name must start with B' 
+}).add([
+    RunCustom('start-with-X', 'B')
+]);
 
 
 guardian.on({ 
     path: 'data.list[$]',         
-    errorMassage: 'all items in list are required',
+    errorMessage: 'all items in list are required',
     each: true 
-}). 
-existent.isNotNull();
+}).add([
+    NotNull()
+]);
 
+// // guardian.ref('key').or('key')
 
 guardian.on({ 
     path: 'data.items[-1].num',   
-    errorMassage: 'last item must be greater than 5', 
-}).
-number.gt(5);
+    errorMessage: 'last item must be greater than 5', 
+}).add([
+    Gt(5)
+]);
 
 guardian.compile({ 
     name: 'Bob', 
     data: { 
-        address: 'home', 
+        address: null, 
         list: [2, null], 
         items: [
             {num: 2}, 
@@ -61,5 +69,5 @@ guardian.compile({
 guardian.layersSummery()
 
 guardian.run().then(errors => {
-    console.log(errors);
+    console.log(JSON.stringify(errors, undefined, 2));
 });

@@ -40,27 +40,27 @@ const guardian = new Guardian();
 // stacking up the layers
 guardian.on({ 
     path: 'data.address', 
-    errorMassage: 'address is required' 
+    errorMessage: 'address is required' 
 }).        
 existent.isNotNull()
         .isNotUndefined();
 
 guardian.on({ 
     path: 'name',                 
-    errorMassage: 'name must start with B' 
+    errorMessage: 'name must start with B' 
 }).        
 custom.run('start-with-X', 'B');
 
 guardian.on({ 
     path: 'data.list[$]',         
-    errorMassage: 'all items in list are required',
+    errorMessage: 'all items in list are required',
     each: true 
 }). 
 existent.isNotNull();
 
 guardian.on({ 
     path: 'data.items[-1].num',   
-    errorMassage: 'last item must be greater than 5', 
+    errorMessage: 'last item must be greater than 5', 
 }).
 number.gt(5);
 
