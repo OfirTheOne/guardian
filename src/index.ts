@@ -19,7 +19,7 @@ const guardian = new Guardian(); // instantiate an Guardian object to build the 
 
 
 guardian.on({ 
-    path: 'data.address', 
+    path: ['data.address', 'name'], 
     errorMessage: 'address is required' 
 }).add([
     NotNull(), 
