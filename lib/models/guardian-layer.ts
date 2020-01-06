@@ -1,8 +1,17 @@
 import {GuardianOptions} from './guardian-options';
-export interface GuardianLayer extends GuardianOptions {
+import { SequentialLayer } from './sequential-layer';
+// export interface GuardianLayer extends GuardianOptions {
 
 
-    guardAction: Function;
-    name: string;
+//     guardAction: Function;
+//     name: string;
+
+// }
+
+export interface GuardianLayer {
+
+    options: GuardianOptions;
+
+    sequances: Array<SequentialLayer>
 
 }

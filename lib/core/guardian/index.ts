@@ -2,7 +2,6 @@
 import { GuardianLayer } from './../../models/guardian-layer'
 import { GuardianOptions } from './../../models/guardian-options'
 import { getNestedElementByPath } from '../../utils/traveler';
-import { SequentialLayer } from './../../models/sequential-layer';
 import { LayerAttacher } from './../../inner/layer-attacher';
 
 
@@ -12,9 +11,9 @@ const DEFAULT_GUARDIAN_CONFIG = {
 
 export class Guardian {
 
-    private sequentialLayers: Array<SequentialLayer> = [];
+    // private sequentialLayers: Array<SequentialLayer> = [];
 
-    //private guardianLayers: Array<GuardianLayer> = [];
+    private guardianLayers: Array<GuardianLayer> = [];
 
     private guardianLayersMap: Map<string, number> = new Map<string, number>();
 
@@ -31,7 +30,7 @@ export class Guardian {
 
         return new LayerAttacher(
             layerOptions,
-            this.sequentialLayers,
+            this.guardianLayers,
 
         );
     }
@@ -40,14 +39,14 @@ export class Guardian {
     private _handlerInitialLayerOptions(optionsOrPath: string | GuardianOptions | Array<string>): Partial<GuardianOptions> {
         let leyerOptions: Partial<GuardianOptions>  = {};
 
-        let layerKey: GuardianLayer['layerKey'] = this.sequentialLayers.length + 1;
+        let layerKey: GuardianOptions['layerKey'] = this.guardianLayers.length + 1;
         if(typeof optionsOrPath == 'string' || Array.isArray(optionsOrPath)) {
             leyerOptions.path = optionsOrPath;
         } else {
             if(optionsOrPath.layerKey) {
                 this.guardianLayersMap.has(`${optionsOrPath.layerKey}`) ? 
                     console.warn('duplicate layer key, fallback to layer level.') : 
-                    layerKey = (optionsOrPath.layerKey != undefined ? optionsOrPath.layerKey : (this.sequentialLayers.length + 1));
+                    layerKey = (optionsOrPath.layerKey != undefined ? optionsOrPath.layerKey : (this.guardianLayers.length + 1));
             }
 
             leyerOptions = {
@@ -58,25 +57,25 @@ export class Guardian {
         return leyerOptions;
     }
 
-    private _sequentialToGuardianLayer(sequential: SequentialLayer): GuardianLayer {
-        return {
-            ...sequential.options,
-            path: sequential.options.path,
-            guardAction: sequential.action,
-            name: sequential.name
-        }
-    }
-    // private _pushLayer(layer: GuardianLayer) {
-    //     this.guardianLayers.push(layer);
-    // }    
-    private _processSequential(sequentialLayers: Array<SequentialLayer>) {
-        return sequentialLayers
-            .map(seq => this._sequentialToGuardianLayer(seq))
-            // .forEach(grd => {
-            //     this._pushLayer(grd);
-            //     this.guardianLayersMap.set(`${grd.layerKey}`, this.guardianLayers.length-1)
-            // });
-    }
+    // private _sequentialToGuardianLayer(sequential: SequentialLayer): GuardianLayer {
+    //     return {
+    //         ...sequential.options,
+    //         path: sequential.options.path,
+    //         guardAction: sequential.action,
+    //         name: sequential.name
+    //     }
+    // }
+    // // private _pushLayer(layer: GuardianLayer) {
+    // //     this.guardianLayers.push(layer);
+    // // }    
+    // private _processSequential(sequentialLayers: Array<SequentialLayer>) {
+    //     return sequentialLayers
+    //         .map(seq => this._sequentialToGuardianLayer(seq))
+    //         // .forEach(grd => {
+    //         //     this._pushLayer(grd);
+    //         //     this.guardianLayersMap.set(`${grd.layerKey}`, this.guardianLayers.length-1)
+    //         // });
+    // }
 
 
     private async _execLayer(layer: GuardianLayer) {
@@ -85,30 +84,35 @@ export class Guardian {
                 each = false,
                 path = [''], 
                 optional = false, 
-                guardAction,
-                errorMessage
-            } = layer;
+                errorMessage,
+                layerKey
+            } = layer.options;
 
+            const { sequances } = layer;
+            
             path = Array.isArray(path) ? path : [path];
             for(let targetPath of path) {
                 // get target
-                debugger;
                 const inTarget = getNestedElementByPath(this.target, targetPath)
                 let result;
 
-                // exec function
-                if(each && Array.isArray(inTarget)) {
-                    result = await Promise.all(inTarget.map(async targetItem => await guardAction(targetItem)));
-                    result = (result as Array<any>).every(val => val == true)
-                } else {
-                    result = await guardAction(inTarget);
+                for(let sequance of sequances) {
+                    const { action } = sequance;
+                    // exec function
+                    if(each && Array.isArray(inTarget)) {
+
+                        result = await Promise.all(inTarget.map(async targetItem => await action(targetItem)));
+                        result = (result as Array<any>).every(val => val == true)
+                    } else {
+                        result = await action(inTarget);
+                    }
+                    // check result
+                    if(!result) {
+                        throw { massege: errorMessage, target: inTarget, path, layerKey};
+                    }
                 }
 
     
-                // check result
-                if(!result) {
-                    throw { massege: errorMessage, target: inTarget, path};
-                }
             }
 
 
@@ -118,11 +122,13 @@ export class Guardian {
     }
 
 
+
+
     public compile(target: any) {
         this.target = target;
     }
     public async run() {
-        const guardianLayers = this._processSequential(this.sequentialLayers); // convert sequantioal to guardian layer
+        const guardianLayers = this.guardianLayers//this._processSequential(this.sequentialLayers); // convert sequantioal to guardian layer
 
         const errors = [];
 
@@ -142,24 +148,15 @@ export class Guardian {
         return errors;
     }
 
-/*
-    public add(sequentialLayer: (Array<SequentialLayer> | SequentialLayer)) {
-
-        this.sequentialLayers.push(
-            ...( Array.isArray(sequentialLayer) ? sequentialLayer : [sequentialLayer] )
-        );
-    }
-*/
 
     // public ref(key: string) {
 
     // }
-    // public or() {
 
-    // }
+
     public disable(layerKey: number|string) {
         this.guardianLayersMap.has(`${layerKey}`) ? 
-            this.sequentialLayers[this.guardianLayersMap.get(`${layerKey}`)].options.disabled = true :
+            this.guardianLayers[this.guardianLayersMap.get(`${layerKey}`)].options.disabled = true :
             console.warn('layerKey not found.')
 
     }
@@ -167,9 +164,9 @@ export class Guardian {
     public layersSummery(): Array<any> 
     public layersSummery(prettyPrint = true): (void | Array<any>) {
 
-        const summary = this.sequentialLayers.map(({name, options}, i) => ({
+        const summary = this.guardianLayers.map(({sequances, options}, i) => ({
             Layer: i+1, 
-            Name: name, 
+            Name: sequances.map(({name}) => name), 
             Path: options.path,
             Key: options.layerKey
         }));

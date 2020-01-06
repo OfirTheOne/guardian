@@ -1,13 +1,14 @@
 import { GuardianOptions } from "./../models/guardian-options";
 import { SequentialLayer } from "./../models/sequential-layer";
 import { LayerOperation } from "./../models/layer-operation";
+import { GuardianLayer } from "../models/guardian-layer";
 
 export class LayerAttacher {
 
     
     constructor(
             private stateOptions: Partial<GuardianOptions>, 
-            private sequentialLayers: Array<SequentialLayer>,
+            private guardianLayers: Array<GuardianLayer>,
             private onAttchment?: (stateOptions: Partial<GuardianOptions>, sequentialLayer: Array<SequentialLayer>) => void) {
 
     }
@@ -21,8 +22,10 @@ export class LayerAttacher {
             layerKey: `${this.stateOptions.layerKey}:${i}`
         }))
 
-        this.sequentialLayers.push(
-            ...( sequentialLayers )
+        this.guardianLayers.push({
+            options: this.stateOptions as GuardianOptions,
+            sequances: sequentialLayers
+        }
         );
         // this.onAttchment(this.stateOptions, this.sequentialLayers);
     }

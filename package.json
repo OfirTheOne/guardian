@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Guardian - Validation Module.",
   "main": "dist-prod/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist-prod/index.d.ts",
   "author": "Ofir G.",
   "os": [
     "darwin",
