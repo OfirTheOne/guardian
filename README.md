@@ -1,5 +1,6 @@
 
 
+
 # Guardian
 
 ## Validation Module - Follow the Builder pattern.   
@@ -19,50 +20,65 @@
 ```ts
 // validation-registry.ts
 
-import { CustomContext } from 'guardian/core/contexts'
+import { CustomContext } from 'guardian/core/custom-registry';
 
 
-CustomContext.registerCustomFunction(
+CustomRegistryContext.registerCustomFunction(
     'start-with-X', 
     function(name: string) { 
         const prefix = this.args[0]; // dynamically bound context
         return name.startsWith(prefix);
     }
 )
+
 ```
 
 ```ts
+
+import { Guardian } from 'guardian'
+
+import { NotNull, NotUndefined, Gt, RunCustom } from 'guardian/core/layer-operators';
+
 
 // instantiate an Guardian object to build the validation layers on top.
 const guardian = new Guardian(); 
 
 
 // stacking up the layers
-guardian.on({ 
-    path: 'data.address', 
-    errorMessage: 'address is required' 
-}).        
-existent.isNotNull()
-        .isNotUndefined();
 
 guardian.on({ 
-    path: 'name',                 
+    path: ['data.address', 'name'], 
+    errorMessage: 'address is required' 
+}).add([
+    NotNull(), 
+    NotUndefined()
+]);
+
+
+guardian.on({ 
+    path: 'name', 
     errorMessage: 'name must start with B' 
-}).        
-custom.run('start-with-X', 'B');
+}).add([
+    RunCustom('start-with-X', 'B')
+]);
+
 
 guardian.on({ 
     path: 'data.list[$]',         
     errorMessage: 'all items in list are required',
     each: true 
-}). 
-existent.isNotNull();
+}).add([
+    NotNull()
+]);
+
 
 guardian.on({ 
     path: 'data.items[-1].num',   
     errorMessage: 'last item must be greater than 5', 
-}).
-number.gt(5);
+}).add([
+    Gt(5)
+]);
+
 
 // compile the target object
 guardian.compile({ 
@@ -79,6 +95,7 @@ guardian.compile({
     } 
 });
 
+
 // exec the validations
 guardian.run().then(errors => {
     console.log(errors);
@@ -91,10 +108,27 @@ guardian.run().then(errors => {
 
 ```sh
 
-[ Error: all items in list are required
-      at Guardian.<anonymous>
-      ...
-      ...
+[
+  {
+    "massege": "address is required",
+    "target": null,
+    "path": [
+      "data.address",
+      "name"
+    ],
+    "layerKey": 1
+  },
+  {
+    "massege": "all items in list are required",
+    "target": [
+      2,
+      null
+    ],
+    "path": [
+      "data.list[$]"
+    ],
+    "layerKey": 3
+  }
 ]
 
 ```
@@ -112,15 +146,14 @@ guardian.layersSummery()
 
 ```sh
 
-┌─────────┬───────┬──────────────────┬──────────────────────┐
-│ (index) │ Layer │       Name       │         Path         │
-├─────────┼───────┼──────────────────┼──────────────────────┤
-│    0    │   1   │   'isNotNull'    │    'data.address'    │
-│    1    │   2   │ 'isNotUndefined' │    'data.address'    │
-│    2    │   3   │  'start-with-X'  │        'name'        │
-│    3    │   4   │   'isNotNull'    │    'data.list[$]'    │
-│    4    │   5   │       'gt'       │ 'data.items[-1].num' │
-└─────────┴───────┴──────────────────┴──────────────────────┘
+┌─────────┬───────┬───────────────────────────────┬────────────────────────────┬─────┐
+│ (index) │ Layer │             Name              │            Path            │ Key │
+├─────────┼───────┼───────────────────────────────┼────────────────────────────┼─────┤
+│    0    │   1   │ [ 'NotNull', 'NotUndefined' ] │ [ 'data.address', 'name' ] │  1  │
+│    1    │   2   │      [ 'start-with-X' ]       │           'name'           │  2  │
+│    2    │   3   │         [ 'NotNull' ]         │       'data.list[$]'       │  3  │
+│    3    │   4   │           [ 'Gt' ]            │    'data.items[-1].num'    │  4  │
+└─────────┴───────┴───────────────────────────────┴────────────────────────────┴─────┘
 
 ```
 
