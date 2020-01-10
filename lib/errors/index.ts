@@ -3,3 +3,10 @@ export class CustomFunctionNotFound extends Error {
         super(`The costum function ${functionName} not found in the registry.`)
     }
 }
+
+
+export class LayerKeyNotFound extends Error {
+    constructor(keys: Array<string>) {
+        super(`The key(s) ${keys.join(', ')} not found.`)
+    }
+}

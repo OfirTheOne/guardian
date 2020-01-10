@@ -17,10 +17,42 @@ CustomRegistryContext.registerCustomFunction(
 const guardian = new Guardian(); // instantiate an Guardian object to build the validation layers on top.
 
 
+/*
+guardian.on({ 
+    path: ['data.address', 'name'], 
+    errorMessage: 'address is required'
+    
+    compose: {
+        and: [
+            NotNull(), 
+            NotUndefined()
+        ]
+        
+        or: [
+            NotNull(), 
+            NotUndefined()
+        ]
+    }
+});
+
+
+guardian.on({ 
+    path: 'name', 
+    errorMessage: 'name must start with B' 
+}).add({
+    or: [
+        RunCustom('start-with-X', 'B')
+    ],
+
+});
+
+
+*/
+
 
 guardian.on({ 
     path: ['data.address', 'name'], 
-    errorMessage: 'address is required' 
+    errorMessage: 'address is required'
 }).add([
     NotNull(), 
     NotUndefined()
@@ -34,6 +66,9 @@ guardian.on({
     RunCustom('start-with-X', 'B')
 ]);
 
+guardian.orReduction('1', '2')
+// && 
+// guardian.or('1', '4')
 
 guardian.on({ 
     path: 'data.list[$]',         
@@ -42,6 +77,8 @@ guardian.on({
 }).add([
     NotNull()
 ]);
+
+
 
 // // guardian.ref('key').or('key')
 
@@ -56,7 +93,7 @@ guardian.compile({
     name: 'Bob', 
     data: { 
         address: null, 
-        list: [2, null], 
+        list: [2, 12], 
         items: [
             {num: 2}, 
             {num: null}, 

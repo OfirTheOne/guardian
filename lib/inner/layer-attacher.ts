@@ -8,7 +8,8 @@ export class LayerAttacher {
     
     constructor(
             private stateOptions: Partial<GuardianOptions>, 
-            private guardianLayers: Array<GuardianLayer>,
+            private defenitionPool: Map <string, GuardianLayer> = new Map <string, GuardianLayer>(),
+            private layersStack: Array<string|Set<string>> ,
             private onAttchment?: (stateOptions: Partial<GuardianOptions>, sequentialLayer: Array<SequentialLayer>) => void) {
 
     }
@@ -17,16 +18,19 @@ export class LayerAttacher {
 
         const operationsAsArray = Array.isArray(operations) ? operations : [operations] ;
 
+        const {layerKey} = this.stateOptions;
+
         const sequentialLayers: Array<SequentialLayer> = operationsAsArray.map((op, i) => op({
             ...this.stateOptions,
             layerKey: `${this.stateOptions.layerKey}:${i}`
         }))
 
-        this.guardianLayers.push({
+        this.defenitionPool.set(`${layerKey}`, {
             options: this.stateOptions as GuardianOptions,
             sequances: sequentialLayers
-        }
-        );
+        });
+
+        this.layersStack.push(`${layerKey}`);
         // this.onAttchment(this.stateOptions, this.sequentialLayers);
     }
 

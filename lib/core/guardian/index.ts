@@ -3,6 +3,7 @@ import { GuardianLayer } from './../../models/guardian-layer'
 import { GuardianOptions } from './../../models/guardian-options'
 import { getNestedElementByPath } from '../../utils/traveler';
 import { LayerAttacher } from './../../inner/layer-attacher';
+import { LayerKeyNotFound } from './../../errors';
 
 
 const DEFAULT_GUARDIAN_CONFIG = {
@@ -13,9 +14,27 @@ export class Guardian {
 
     // private sequentialLayers: Array<SequentialLayer> = [];
 
-    private guardianLayers: Array<GuardianLayer> = [];
+    
+    // private guardianLayers: Array<GuardianLayer> = [];
+    
+    // private guardianLayersMap: Map<string, number> = new Map<string, number>();
+    
+    // private resolvementCache: Map<string, {resolvement: boolean, error?: any }> = new Map<string, {resolvement: boolean, error?: any }>();
+    
+    
+    
+    
+    
+    // 
+    private orReductionGroupStack: Array<{ keys: Set<string>, resolvement: boolean }> = [];
 
-    private guardianLayersMap: Map<string, number> = new Map<string, number>();
+    private layersStack: Array<string> = [];
+    private defenitionPool: Map <string, GuardianLayer> = new Map <string, GuardianLayer>();
+    private resolvementCache: Map <string, { result: boolean, error?: any}> = new Map <string, { result: boolean, error?: any}>();
+
+
+
+
 
     private target: any;
 
@@ -30,23 +49,33 @@ export class Guardian {
 
         return new LayerAttacher(
             layerOptions,
-            this.guardianLayers,
-
+            this.defenitionPool,
+            this.layersStack
         );
     }
 
+    private _pickNewLayerKey(exsitngKeys: Map<string, any>, suggestedKey: string|number) {
+
+        let layerKey: GuardianOptions['layerKey'] = suggestedKey;
+
+        if(suggestedKey == undefined) {
+            layerKey = exsitngKeys.size + 1;
+        } else if(exsitngKeys.has(`${suggestedKey}`)) {
+            console.warn('duplicate layer key, fallback to layer level.'); 
+            layerKey = (exsitngKeys.size + 1)
+        }
+        return layerKey;
+    }
 
     private _handlerInitialLayerOptions(optionsOrPath: string | GuardianOptions | Array<string>): Partial<GuardianOptions> {
         let leyerOptions: Partial<GuardianOptions>  = {};
 
-        let layerKey: GuardianOptions['layerKey'] = this.guardianLayers.length + 1;
+        let layerKey: GuardianOptions['layerKey'] = this._pickNewLayerKey(this.defenitionPool, undefined);
         if(typeof optionsOrPath == 'string' || Array.isArray(optionsOrPath)) {
             leyerOptions.path = optionsOrPath;
         } else {
             if(optionsOrPath.layerKey) {
-                this.guardianLayersMap.has(`${optionsOrPath.layerKey}`) ? 
-                    console.warn('duplicate layer key, fallback to layer level.') : 
-                    layerKey = (optionsOrPath.layerKey != undefined ? optionsOrPath.layerKey : (this.guardianLayers.length + 1));
+                layerKey = this._pickNewLayerKey(this.defenitionPool, optionsOrPath.layerKey);
             }
 
             leyerOptions = {
@@ -56,29 +85,7 @@ export class Guardian {
         }
         return leyerOptions;
     }
-
-    // private _sequentialToGuardianLayer(sequential: SequentialLayer): GuardianLayer {
-    //     return {
-    //         ...sequential.options,
-    //         path: sequential.options.path,
-    //         guardAction: sequential.action,
-    //         name: sequential.name
-    //     }
-    // }
-    // // private _pushLayer(layer: GuardianLayer) {
-    // //     this.guardianLayers.push(layer);
-    // // }    
-    // private _processSequential(sequentialLayers: Array<SequentialLayer>) {
-    //     return sequentialLayers
-    //         .map(seq => this._sequentialToGuardianLayer(seq))
-    //         // .forEach(grd => {
-    //         //     this._pushLayer(grd);
-    //         //     this.guardianLayersMap.set(`${grd.layerKey}`, this.guardianLayers.length-1)
-    //         // });
-    // }
-
-
-    private async _execLayer(layer: GuardianLayer) {
+    private async _execLayer(rootTarget: any, layer: GuardianLayer) {
         try {
             let { 
                 each = false,
@@ -93,7 +100,7 @@ export class Guardian {
             path = Array.isArray(path) ? path : [path];
             for(let targetPath of path) {
                 // get target
-                const inTarget = getNestedElementByPath(this.target, targetPath)
+                const inTarget = getNestedElementByPath(rootTarget, targetPath)
                 let result;
 
                 for(let sequance of sequances) {
@@ -122,28 +129,99 @@ export class Guardian {
     }
 
 
+    private _addReductionGroup(keys: Array<string>) {
+        const keysSet = new Set<string>(keys);
+        this.orReductionGroupStack.push({ keys: keysSet, resolvement: undefined });
+    }
+    private _updateResolvementCache(layerKey: string, result: boolean, error?: any) {
+        this.resolvementCache.set(`${layerKey}`, {result, error});
+    }
 
+
+
+    public orReduction(...keys: Array<string>) {
+        const unfoundKeys = keys.filter(k => !this.defenitionPool.has(k));
+        if(unfoundKeys.length) {
+            throw new LayerKeyNotFound(keys);
+        }
+        this._addReductionGroup(keys);
+        this.layersStack = this.layersStack.filter(layerKey => !keys.includes(layerKey));
+    }
 
     public compile(target: any) {
         this.target = target;
     }
     public async run() {
-        const guardianLayers = this.guardianLayers//this._processSequential(this.sequentialLayers); // convert sequantioal to guardian layer
 
+        const layersStack = this.layersStack;
+        const defenitionPool = this.defenitionPool;
         const errors = [];
 
-        for(let layer of guardianLayers) {
+        // #region - or groups execution
+        for(let group of this.orReductionGroupStack) {
+            const groupErrors = []
+            const keysArray = Array.from(group.keys.values())            
+
+    
+            for(let layerKey of keysArray) {
+                const layer = defenitionPool.get(`${layerKey}`);
+                
+                if(this.resolvementCache.has(`${layerKey}`)) {
+                    // layer was resolved
+                    const { result, error } = this.resolvementCache.get(`${layerKey}`);
+                    if(result == false) {
+                        groupErrors.push(error);
+                    } else if(result == true) {
+                        break;
+                    }
+                } else {
+                    try {
+                        await this._execLayer(this.target, layer);
+                        this._updateResolvementCache(`${layerKey}`, true);
+    
+                    } catch (error) {
+                        groupErrors.push(error);
+                        this._updateResolvementCache(`${layerKey}`, false, error);
+                    }
+                }
+            }
+
+
+            const groupValid = groupErrors.length < group.keys.size;
+
+            if(!groupValid) {
+                errors.push(...groupErrors);
+                if(this.config.eager) {
+                    // first error will stop the layer execution loop
+                    return errors;
+                }
+            }
+
+        }
+        // #endregion 
+
+
+
+        // #region - single layer execution
+        for(let layerKey of layersStack) { 
+            const layer = defenitionPool.get(`${layerKey}`);
 
             try {
-                await this._execLayer(layer);
+                await this._execLayer(this.target, layer);
+                this._updateResolvementCache(`${layerKey}`, true);
+
+
             } catch (error) {
                 errors.push(error);
+                this._updateResolvementCache(`${layerKey}`, false, error);
+                
                 if(this.config.eager) {
                     // first error will stop the layer execution loop
                     break;
                 }
             }
         }
+        // #endregion 
 
         return errors;
     }
@@ -155,8 +233,8 @@ export class Guardian {
 
 
     public disable(layerKey: number|string) {
-        this.guardianLayersMap.has(`${layerKey}`) ? 
-            this.guardianLayers[this.guardianLayersMap.get(`${layerKey}`)].options.disabled = true :
+        this.defenitionPool.has(`${layerKey}`) ? 
+            this.defenitionPool.get(`${layerKey}`).options.disabled = true :
             console.warn('layerKey not found.')
 
     }
@@ -164,12 +242,14 @@ export class Guardian {
     public layersSummery(): Array<any> 
     public layersSummery(prettyPrint = true): (void | Array<any>) {
 
-        const summary = this.guardianLayers.map(({sequances, options}, i) => ({
-            Layer: i+1, 
-            Name: sequances.map(({name}) => name), 
-            Path: options.path,
-            Key: options.layerKey
-        }));
+        const summary = this.layersStack
+            .map(key => this.defenitionPool.get(`${key}`))
+            .map(({sequances, options}, i) => ({
+                Layer: i+1, 
+                Name: sequances.map(({name}) => name), 
+                Path: options.path,
+                Key: options.layerKey
+            }));
         return prettyPrint ? 
             console.table(summary) : 
             summary
