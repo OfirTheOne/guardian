@@ -1,8 +1,4 @@
-
-import { Guardian } from './../lib'
-import { CustomRegistryContext } from './../lib/core/custom-registry';
-
-import { NotNull, NotUndefined, Gt, RunCustom } from './../lib/core/layer-operators';
+import { CustomRegistryContext } from '../lib/core/custom-registry';
 
 
 CustomRegistryContext.registerCustomFunction(
@@ -14,45 +10,21 @@ CustomRegistryContext.registerCustomFunction(
 )
 
 
-const guardian = new Guardian(); // instantiate an Guardian object to build the validation layers on top.
+
+import { Guardian } from '../lib'
+
+import { NotNull, NotUndefined, Gt, RunCustom } from '../lib/core/layer-operators';
 
 
-/*
-guardian.on({ 
-    path: ['data.address', 'name'], 
-    errorMessage: 'address is required'
-    
-    compose: {
-        and: [
-            NotNull(), 
-            NotUndefined()
-        ]
-        
-        or: [
-            NotNull(), 
-            NotUndefined()
-        ]
-    }
-});
+// instantiate an Guardian object to build the validation layers on top.
+const guardian = new Guardian(); 
 
 
-guardian.on({ 
-    path: 'name', 
-    errorMessage: 'name must start with B' 
-}).add({
-    or: [
-        RunCustom('start-with-X', 'B')
-    ],
-
-});
-
-
-*/
-
+// stacking up the layers
 
 guardian.on({ 
     path: ['data.address', 'name'], 
-    errorMessage: 'address is required'
+    errorMessage: 'name & address are required' 
 }).add([
     NotNull(), 
     NotUndefined()
@@ -66,9 +38,6 @@ guardian.on({
     RunCustom('start-with-X', 'B')
 ]);
 
-guardian.orReduction('1', '2')
-// && 
-// guardian.or('1', '4')
 
 guardian.on({ 
     path: 'data.list[$]',         
@@ -79,9 +48,6 @@ guardian.on({
 ]);
 
 
-
-// // guardian.ref('key').or('key')
-
 guardian.on({ 
     path: 'data.items[-1].num',   
     errorMessage: 'last item must be greater than 5', 
@@ -89,11 +55,13 @@ guardian.on({
     Gt(5)
 ]);
 
+
+// compile the target object
 guardian.compile({ 
     name: 'Bob', 
     data: { 
         address: null, 
-        list: [2, 12], 
+        list: [2, null], 
         items: [
             {num: 2}, 
             {num: null}, 
@@ -103,7 +71,8 @@ guardian.compile({
     } 
 });
 
-guardian.layersSummery()
+
+
 
 guardian.run().then(errors => {
     console.log(JSON.stringify(errors, undefined, 2));

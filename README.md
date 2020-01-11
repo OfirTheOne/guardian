@@ -20,7 +20,7 @@
 ```ts
 // validation-registry.ts
 
-import { CustomContext } from 'guardian/core/custom-registry';
+import { CustomRegistryContext } from 'guardian/core/custom-registry';
 
 
 CustomRegistryContext.registerCustomFunction(
@@ -48,7 +48,7 @@ const guardian = new Guardian();
 
 guardian.on({ 
     path: ['data.address', 'name'], 
-    errorMessage: 'address is required' 
+    errorMessage: 'name & address are required' 
 }).add([
     NotNull(), 
     NotUndefined()
@@ -110,12 +110,9 @@ guardian.run().then(errors => {
 
 [
   {
-    "massege": "address is required",
+    "massege": "name & address are required",
     "target": null,
-    "path": [
-      "data.address",
-      "name"
-    ],
+    "path": "data.address",
     "layerKey": 1
   },
   {
@@ -124,9 +121,7 @@ guardian.run().then(errors => {
       2,
       null
     ],
-    "path": [
-      "data.list[$]"
-    ],
+    "path": "data.list[$]",
     "layerKey": 3
   }
 ]
@@ -135,10 +130,10 @@ guardian.run().then(errors => {
 
 <br>
 
-### Layers Summery
+### Stack Summery
 
 ```ts
-guardian.layersSummery()
+guardian.stackSummery()
 
 // Output : 
 
@@ -158,3 +153,18 @@ guardian.layersSummery()
 ```
 
 
+## API 
+
+`class Guardian` <br>
+
+By using a Guardian object a stack of validation layers can be built to validate a single object target.
+
+<br>
+
+`class method Guardian.prototype.on`
+```ts
+on(options: GuardianOptions): LayerAttacher;
+on(path: Array<string>): LayerAttacher;
+on(path: string): LayerAttacher;
+```
+<br>

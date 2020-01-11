@@ -238,21 +238,35 @@ export class Guardian {
             console.warn('layerKey not found.')
 
     }
-    public layersSummery(prettyPrint: boolean): void 
-    public layersSummery(): Array<any> 
-    public layersSummery(prettyPrint = true): (void | Array<any>) {
+    public stackSummery(prettyPrint: boolean): void 
+    public stackSummery(): Array<any> 
+    public stackSummery(prettyPrint = true): (void | Array<any>) {
 
-        const summary = this.layersStack
+        const groupSummary = this.orReductionGroupStack
+            .map(group => Array.from(group.keys.values()).map(key => this.defenitionPool.get(key)))
+            .reduce((acc, groupAsArray, i) =>  [
+                ...acc, 
+                ...groupAsArray.map(({sequances, options}) => ({
+                    Layer: `OR/${i+1}`, 
+                    Name: sequances.map(({name}) => name), 
+                    Path: options.path,
+                    Key: options.layerKey,
+                    
+                }))
+            ] , []);
+
+        const singleSummary = this.layersStack
             .map(key => this.defenitionPool.get(`${key}`))
             .map(({sequances, options}, i) => ({
                 Layer: i+1, 
                 Name: sequances.map(({name}) => name), 
                 Path: options.path,
-                Key: options.layerKey
+                Key: options.layerKey,
+                
             }));
         return prettyPrint ? 
-            console.table(summary) : 
-            summary
+            console.table([...groupSummary, ...singleSummary]) : 
+            [...groupSummary, ...singleSummary]
     }
 
     public toMiddleware(target: (string | Function) ) {
