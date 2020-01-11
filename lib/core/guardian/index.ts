@@ -115,7 +115,7 @@ export class Guardian {
                     }
                     // check result
                     if(!result) {
-                        throw { massege: errorMessage, target: inTarget, path, layerKey};
+                        throw { massege: errorMessage, target: inTarget, path: targetPath, layerKey};
                     }
                 }
 

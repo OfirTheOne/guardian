@@ -22,7 +22,10 @@
     "url": "https://github.com/OfirTheOne/guardian"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:osx": "mocha --require ts-node/register tests/**/*.test.ts",
+    "test:lin": "mocha --require ts-node/register tests/**/*.test.ts",
+    "test": "NODE_ENV=testing&& npm run test:osx",
+        
     "build-dev": "tsc -p tsconfig.dev.json",
     "build-prod": "tsc -p tsconfig.prod.json",
     "start": "ts-node ./src/index.ts"
