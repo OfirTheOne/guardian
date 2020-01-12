@@ -238,9 +238,9 @@ export class Guardian {
             console.warn('layerKey not found.')
 
     }
-    public stackSummery(prettyPrint: boolean): void 
-    public stackSummery(): Array<any> 
-    public stackSummery(prettyPrint = true): (void | Array<any>) {
+    public stackSummary(prettyPrint: boolean): void 
+    public stackSummary(): Array<any> 
+    public stackSummary(prettyPrint = true): (void | Array<any>) {
 
         const groupSummary = this.orReductionGroupStack
             .map(group => Array.from(group.keys.values()).map(key => this.defenitionPool.get(key)))

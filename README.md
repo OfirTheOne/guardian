@@ -130,10 +130,10 @@ guardian.run().then(errors => {
 
 <br>
 
-### Stack Summery
+### Stack Summary
 
 ```ts
-guardian.stackSummery()
+guardian.stackSummary()
 
 // Output : 
 
@@ -152,19 +152,125 @@ guardian.stackSummery()
 
 ```
 
+<br>
+<br>
+<br>
 
 ## API 
 
-`class Guardian` <br>
+### `class Guardian` <br>
 
 By using a Guardian object a stack of validation layers can be built to validate a single object target.
 
+```ts
+const guardian = new Guardian()
+```
 <br>
 
-`class method Guardian.prototype.on`
+### Method
+
+#### `guardian.on()`
 ```ts
 on(options: GuardianOptions): LayerAttacher;
 on(path: Array<string>): LayerAttacher;
 on(path: string): LayerAttacher;
 ```
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
 <br>
+
+#### `guardian.orReduction()`
+```ts
+orReduction(...keys: Array<string>): void
+```
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+
+<br>
+
+#### `guardian.compile()`
+```ts
+compile(target: any): void
+```
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+<br>
+
+#### `guardian.run()`
+```ts
+run(): Promise<Array<any>
+```
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+<br>
+
+#### `guardian.disable()`
+```ts
+disable(layerKey: number|string): void
+```
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+<br>
+
+#### `guardian.stackSummary()`
+```ts
+stackSummary(prettyPrint: boolean): void 
+stackSummary(): Array<any> 
+```
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+<br>
+
+#### `guardian.toMiddleware()`
+```ts
+toMiddleware(target: (string | Function) ): e.RequestHandler
+```
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+
+<br>
+
+### Interfaces
+
+#### `GuardianOptions`
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+<br>
+<br>
+<br>
+
+### `class LayerAttacher`
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+```ts
+const layerAttcher = guardian.on(...);
+```
+
+<br>
+
+### Method
+
+#### `layerAttcher.add()`
+```ts
+add(operations: LayerOperation): void
+add(operations: Array<LayerOperation>): void
+```
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+<br>
+
+### Interfaces
+
+#### `LayerOperation`
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+
+
+
