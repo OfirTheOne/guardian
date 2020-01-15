@@ -77,3 +77,51 @@ guardian.compile({
 guardian.run().then(errors => {
     console.log(JSON.stringify(errors, undefined, 2));
 });
+
+
+/*
+const guardian = new Guardian();
+guardian.on({ 
+    path: 'name', 
+    errorMessage: 'name must start with B.' 
+}).add([
+    RunCustom('start-with-X', 'B')
+]);
+
+guardian.on({ 
+    path: 'data.age',         
+    errorMessage: 'age is required & must be greater than 20.',
+    each: true 
+}).add([
+    NotNull(),
+    Gt(20)
+]);
+
+guardian.on({ 
+    path: 'data.list[$]',         
+    errorMessage: 'all items in list are required',
+    each: true 
+}).add([
+    NotNull()
+]);
+
+
+
+guardian.orReduction('1', '3');
+
+guardian.compile({ 
+    name: 'Bob', 
+    data: { 
+        age: 25,
+        list: [2, null]
+    }
+});
+
+
+guardian.stackSummary();
+
+guardian.run().then(errors => {
+    console.log(JSON.stringify(errors, undefined, 2));
+});
+
+*/

@@ -10,8 +10,10 @@
 * provide a custom (sync & async) validation method registry, for global app usage. 
 * support a reduction of a validation stack to an express/connect middleware.
 * support typescript from the box.
+* provide OR relation in the validation stack.
 * no dependencies.
 
+<br>
 <br>
 
 ## Example 
@@ -155,6 +157,7 @@ guardian.stackSummary()
 <br>
 <br>
 <br>
+<br>
 
 ## API 
 
@@ -166,6 +169,7 @@ By using a Guardian object a stack of validation layers can be built to validate
 const guardian = new Guardian()
 ```
 <br>
+<br>
 
 ### Method
 
@@ -176,8 +180,23 @@ on(path: Array<string>): LayerAttacher;
 on(path: string): LayerAttacher;
 ```
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+A factory method for LayerAttacher object, with `on` method you'r setting the configuration for the validation layer you'r about to create.  
 
+[GuardianOptions reference](####GuardianOptions)
+
+* Example : 
+```ts
+guardian.on({ 
+    path: 'data.list[$]',         
+    errorMessage: 'all items in list are required',
+    each: true 
+}).add([
+    NotNull()
+]);
+
+```
+
+<br>
 <br>
 
 #### `guardian.orReduction()`
@@ -187,7 +206,72 @@ orReduction(...keys: Array<string>): void
 
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
+* Example :
+```ts
 
+const guardian = new Guardian();
+
+guardian.on({ 
+    path: 'name', 
+    errorMessage: 'name must start with B.' 
+}).add([
+    RunCustom('start-with-X', 'B')
+]);
+
+guardian.on({ 
+    path: 'data.age',         
+    errorMessage: 'age is required & must be greater than 20.'
+}).add([
+    NotNull(),
+    Gt(20)
+]);
+
+guardian.on({ 
+    path: 'data.list[$]',         
+    errorMessage: 'all items in list are required',
+    each: true 
+}).add([
+    NotNull()
+]);
+
+// before orReduction --> 1 & 2 & 3
+
+guardian.orReduction('1', '3');
+
+// after orReduction --> (1 || 3) & 2
+
+guardian.compile({ 
+    name: 'Bob', 
+    data: { 
+        age: 25,
+        list: [2, null]
+    }
+});
+
+console.log('summary:');
+guardian.stackSummary();
+
+guardian.run().then(errors => {
+    console.log('result:');
+    console.log(JSON.stringify(errors, undefined, 2));
+});
+
+// Output :
+```
+```sh
+summary:
+┌─────────┬────────┬─────────────────────┬────────────────┬─────┐
+│ (index) │ Layer  │        Name         │      Path      │ Key │
+├─────────┼────────┼─────────────────────┼────────────────┼─────┤
+│    0    │ 'OR/1' │ [ 'start-with-X' ]  │     'name'     │  1  │
+│    1    │ 'OR/1' │    [ 'NotNull' ]    │ 'data.list[$]' │  3  │
+│    2    │   1    │ [ 'NotNull', 'Gt' ] │   'data.age'   │  2  │
+└─────────┴────────┴─────────────────────┴────────────────┴─────┘
+result:
+[]
+```
+
+<br>
 <br>
 
 #### `guardian.compile()`
@@ -198,6 +282,7 @@ compile(target: any): void
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
 <br>
+<br>
 
 #### `guardian.run()`
 ```ts
@@ -207,6 +292,7 @@ run(): Promise<Array<any>
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
 <br>
+<br>
 
 #### `guardian.disable()`
 ```ts
@@ -215,6 +301,7 @@ disable(layerKey: number|string): void
 
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
+<br>
 <br>
 
 #### `guardian.stackSummary()`
@@ -226,15 +313,39 @@ stackSummary(): Array<any>
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
 <br>
+<br>
 
 #### `guardian.toMiddleware()`
 ```ts
-toMiddleware(target: (string | Function) ): e.RequestHandler
+toMiddleware(target?: Function ): e.RequestHandler
+toMiddleware(target?: string ): e.RequestHandler
 ```
 
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
+* Example : 
+```ts
+const guardian = new Guardian();
 
+guardian.on({ 
+    path: 'email', 
+    errorMessage: 'email field in requierd.'
+}).add([
+    NotUndefined(),
+    NotNull(),
+    NotEmpty()
+])
+
+// the root object will be {req, res}
+const logisterValidator = guardian.toMiddleware('req.body');
+
+const app = express();
+app.post('/login', logisterValidator, (req, res, next) => {
+    // request pass all validations ...
+});
+```
+
+<br>
 <br>
 
 ### Interfaces
@@ -242,6 +353,18 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 #### `GuardianOptions`
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
+```ts
+interface GuardianOptions {
+    layerKey?: string | number;
+    optional?: boolean;
+    errorMessage?: string;
+    each?: boolean;
+    disabled?: boolean
+    path: string | Array<string>;
+}
+```
+
+<br>
 <br>
 <br>
 <br>
@@ -253,6 +376,7 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 const layerAttcher = guardian.on(...);
 ```
 
+<br>
 <br>
 
 ### Method
@@ -266,11 +390,17 @@ add(operations: Array<LayerOperation>): void
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
 <br>
+<br>
 
 ### Interfaces
 
 #### `LayerOperation`
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
+```ts
+interface LayerOperation {
+    (optionas: Partial<GuardianOptions>): SequentialLayer
+}
+```
 
 

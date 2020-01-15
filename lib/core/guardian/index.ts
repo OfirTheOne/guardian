@@ -269,10 +269,18 @@ export class Guardian {
             [...groupSummary, ...singleSummary]
     }
 
-    public toMiddleware(target: (string | Function) ) {
+    public toMiddleware(target?: Function );
+    public toMiddleware(target?: string );
+    public toMiddleware(target?: (string | Function) ) {
         return async (req, res, next) => {
             try {
-                const o = typeof target == 'string' ? getNestedElementByPath({ req, res }, target) : target({ req, res })
+                const o = target == undefined ? 
+                    ({req, res}) :
+                    (
+                        typeof target == 'string' ? 
+                            getNestedElementByPath({ req, res }, target) : 
+                            target({ req, res })
+                    );
                 this.compile(o);
                 const errors = await this.run()
                 return errors.length > 0 ? next(errors): next();
