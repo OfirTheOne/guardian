@@ -3,6 +3,27 @@ import { GuardianOptions } from "./../../models/guardian-options";
 import { SequentialLayer } from "./../../models/sequential-layer";
 
 
+export const EndsWith: LayerOperator<[string]> = (text: string) => {
+    return (options: Partial<GuardianOptions>) => 
+        new SequentialLayer(
+            'EndsWith',
+            (o: any) => typeof o == 'string' && o.endsWith(text),
+         options
+    );
+}
+
+
+
+export const StartWith: LayerOperator<[string]> = (text: string) => {
+    return (options: Partial<GuardianOptions>) => 
+        new SequentialLayer(
+            'StartWith',
+            (o: any) => typeof o == 'string' && o.startsWith(text),
+         options
+    );
+}
+
+
 export const Contains: LayerOperator<[string]> = (text: string) => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
