@@ -387,7 +387,10 @@ add(operations: LayerOperation): void
 add(operations: Array<LayerOperation>): void
 ```
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+define a single validation layer with one or more layer-operations. where each operation holds the actual validation logic.
+
+[LayerOperation reference](####LayerOperation)
+
 
 <br>
 <br>
