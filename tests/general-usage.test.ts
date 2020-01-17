@@ -41,7 +41,7 @@ describe('General Usage', function() {
             })
             .catch(e => done(e));
 
-    }) 
+    });
 
     
     it('Using "each" option on a nested array', function(done) {
@@ -77,7 +77,7 @@ describe('General Usage', function() {
                 done()
             })
             .catch(e => done(e));
-    }) 
+    });
 })
 
 

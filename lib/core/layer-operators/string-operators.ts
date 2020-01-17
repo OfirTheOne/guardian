@@ -16,7 +16,7 @@ export const Match: LayerOperator<[string | RegExp]> = (pattern: string | RegExp
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'Match',
-            (o: any) => typeof o == 'string' && o.match(pattern).length,
+            (o: any) => typeof o == 'string' && new RegExp(pattern).test(o),
             options
     );
 }

@@ -1,5 +1,5 @@
 {
-  "name": "guardian",
+  "name": "@galaxy/guardian",
   "version": "1.0.0",
   "description": "Guardian - Validation Module.",
   "main": "dist-prod/index.js",
@@ -11,6 +11,8 @@
     "win32"
   ],
   "keywords": [
+    "@galaxy/guardian",
+    "@galaxy",
     "guardian",
     "middleware",
     "validation",

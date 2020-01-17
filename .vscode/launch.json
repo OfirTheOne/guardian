@@ -9,12 +9,30 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/dist/src/index.js",
-             "preLaunchTask": "tsc: build - tsconfig.json",
+             "preLaunchTask": "tsc: build - tsconfig.dev.json",
             // "preLaunchTask": "build-with-html",
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ],
             
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Mocha All",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "env": {"NODE_ENV": "testing"},
+            "args": [
+                "-r",
+                "ts-node/register",
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceFolder}/tests/**/**/*.test.ts",
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "protocol": "inspector"
         }
     ]
 }
