@@ -21,13 +21,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/OfirTheOne/guardian"
+    "url": "git+https://github.com/OfirTheOne/guardian.git"
   },
   "scripts": {
     "test:osx": "mocha --require ts-node/register tests/**/*.test.ts",
     "test:lin": "mocha --require ts-node/register tests/**/*.test.ts",
     "test": "NODE_ENV=testing&& npm run test:osx",
-        
     "build-dev": "tsc -p tsconfig.dev.json",
     "build-prod": "tsc -p tsconfig.prod.json",
     "start": "ts-node ./src/index.ts"
@@ -46,5 +45,13 @@
   },
   "files": [
     "dist-prod/**"
-  ]
+  ],
+  "bugs": {
+    "url": "https://github.com/OfirTheOne/guardian/issues"
+  },
+  "homepage": "https://github.com/OfirTheOne/guardian#readme",
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  }
 }
