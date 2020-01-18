@@ -3,4 +3,5 @@
 /src
 /lib
 /.vscode
+package-lock.json
 tsconfig.json

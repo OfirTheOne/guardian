@@ -1,5 +1,5 @@
 {
-  "name": "@galaxy/guardian",
+  "name": "@o-galaxy/guardian",
   "version": "1.0.0",
   "description": "Guardian - Validation Module.",
   "main": "dist-prod/index.js",
