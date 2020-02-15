@@ -48,3 +48,31 @@ export const InRange: LayerOperator<[number, number]> = (a: number, b: number) =
             options
     );
 }
+
+export const IsPositive: LayerOperator = () => {
+    return (options: Partial<GuardianOptions>) => 
+        new SequentialLayer(
+            'IsPositive',
+            (o: any) => typeof o == 'number' && o >= 0,
+            options
+    );
+}
+
+export const IsNegative: LayerOperator = () => {
+    return (options: Partial<GuardianOptions>) => 
+        new SequentialLayer(
+            'IsNegative',
+            (o: any) => typeof o == 'number' && o < 0,
+            options
+    );
+}
+
+
+export const IsInteger: LayerOperator = () => {
+    return (options: Partial<GuardianOptions>) => 
+        new SequentialLayer(
+            'IsInteger',
+            (o: any) => typeof o == 'number' && Number.isInteger(o),
+            options
+    );
+}

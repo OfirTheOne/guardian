@@ -13,7 +13,6 @@ export const EndsWith: LayerOperator<[string]> = (text: string) => {
 }
 
 
-
 export const StartWith: LayerOperator<[string]> = (text: string) => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
@@ -29,6 +28,15 @@ export const Contains: LayerOperator<[string]> = (text: string) => {
         new SequentialLayer(
             'Contains',
             (o: any) => typeof o == 'string' && o.includes(text),
+         options
+    );
+}
+
+export const LengthOf: LayerOperator<[number]> = (len: number) => {
+    return (options: Partial<GuardianOptions>) => 
+        new SequentialLayer(
+            'LengthOf',
+            (o: any) => typeof o == 'string' && o.length == len,
          options
     );
 }
@@ -50,3 +58,5 @@ export const NotEmpty: LayerOperator = () => {
             options
     );
 }
+
+
