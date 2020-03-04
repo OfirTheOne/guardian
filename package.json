@@ -1,6 +1,6 @@
 {
   "name": "@o-galaxy/guardian",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Guardian - Validation Module.",
   "main": "dist-prod/index.js",
   "types": "dist-prod/index.d.ts",
