@@ -1,9 +1,10 @@
 import { LayerOperator } from "./../../models/layer-operator";
 import { GuardianOptions } from "./../../models/guardian-options";
 import { SequentialLayer } from "./../../models/sequential-layer";
+import { LayerOperation } from "../../models/layer-operation";
 
 
-export const EndsWith: LayerOperator<[string]> = (text: string) => {
+export const EndsWith = (text: string): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'EndsWith',
@@ -13,7 +14,7 @@ export const EndsWith: LayerOperator<[string]> = (text: string) => {
 }
 
 
-export const StartWith: LayerOperator<[string]> = (text: string) => {
+export const StartWith = (text: string): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'StartWith',
@@ -23,7 +24,7 @@ export const StartWith: LayerOperator<[string]> = (text: string) => {
 }
 
 
-export const Contains: LayerOperator<[string]> = (text: string) => {
+export const Contains = (text: string): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'Contains',
@@ -32,7 +33,7 @@ export const Contains: LayerOperator<[string]> = (text: string) => {
     );
 }
 
-export const LengthOf: LayerOperator<[number]> = (len: number) => {
+export const LengthOf = (len: number): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'LengthOf',
@@ -41,7 +42,7 @@ export const LengthOf: LayerOperator<[number]> = (len: number) => {
     );
 }
 
-export const Match: LayerOperator<[string | RegExp]> = (pattern: string | RegExp) => {
+export const Match = (pattern: string | RegExp): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'Match',
@@ -50,7 +51,7 @@ export const Match: LayerOperator<[string | RegExp]> = (pattern: string | RegExp
     );
 }
 
-export const NotEmpty: LayerOperator = () => {
+export const NotEmpty = (): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'NotEmpty',

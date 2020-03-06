@@ -1,9 +1,10 @@
 import { LayerOperator } from "./../../models/layer-operator";
+import { LayerOperation } from "./../../models/layer-operation";
 import { GuardianOptions } from "./../../models/guardian-options";
 import { SequentialLayer } from "./../../models/sequential-layer";
 
 
-export const TypeString: LayerOperator = () => {
+export const TypeString = (): LayerOperation => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'TypeString',
@@ -12,7 +13,7 @@ export const TypeString: LayerOperator = () => {
     );
 }
 
-export const TypeNumber: LayerOperator = () => {
+export const TypeNumber = (): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'TypeNumber',
@@ -21,7 +22,7 @@ export const TypeNumber: LayerOperator = () => {
     );
 }
 
-export const TypeBoolean: LayerOperator = () => {
+export const TypeBoolean = (): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'TypeBoolean',
@@ -30,16 +31,16 @@ export const TypeBoolean: LayerOperator = () => {
     );
 }
 
-export const TypeObject: LayerOperator = () => {
+export const TypeObject = (): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'TypeObject',
-            (o: any) => typeof o == 'object',
+            (o: any) => typeof o == 'object' && o !== null,
          options
     );
 }
 
-export const TypeArray: LayerOperator = () => {
+export const TypeArray = (): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'TypeArray',

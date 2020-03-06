@@ -1,11 +1,11 @@
 // import { GuardianLayer } from './../../models/guardian-layer'
 import { SequentialLayer } from '../../models/sequential-layer';
 import { GuardianOptions } from '../../models/guardian-options';
-import { LayerOperator } from '../../models/layer-operator';
+import { LayerOperation } from '../../models/layer-operation';
 
 
 
-export const NotUndefined: LayerOperator = () => {
+export const NotUndefined = (): LayerOperation => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'NotUndefined',
@@ -15,7 +15,7 @@ export const NotUndefined: LayerOperator = () => {
     
 }
 
-export const NotNull: LayerOperator = () => {
+export const NotNull = (): LayerOperation => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'NotNull',

@@ -1,11 +1,11 @@
-import { LayerOperator } from "./../../models/layer-operator";
 import { GuardianOptions } from "./../../models/guardian-options";
 import { SequentialLayer } from "./../../models/sequential-layer";
+import { LayerOperation } from "../../models/layer-operation";
 
 
 
 
-export const ContainsEveryKeys: LayerOperator<[Array<string>]> = (keys: Array<string>) => {
+export const ContainsEveryKeys = (keys: Array<string>): LayerOperation => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'ContainsKeys',
@@ -14,7 +14,7 @@ export const ContainsEveryKeys: LayerOperator<[Array<string>]> = (keys: Array<st
     );
 }
 
-export const ContainsSomeKeys: LayerOperator<[Array<string>]> = (keys: Array<string>) => {
+export const ContainsSomeKeys = (keys: Array<string>): LayerOperation => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'ContainsKeys',
@@ -23,7 +23,7 @@ export const ContainsSomeKeys: LayerOperator<[Array<string>]> = (keys: Array<str
     );
 }
 
-export const ContainsKeys: LayerOperator<[Array<string>]> = () => {
+export const ContainsKeys = (): LayerOperation => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'ContainsAnyKeys',

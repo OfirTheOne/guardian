@@ -3,12 +3,12 @@
 import { CustomRegistryContext } from '../custom-registry';
 import { CustomFunctionNotFound } from './../../errors';
 
-import { LayerOperator } from './../../models/layer-operator';
 import { GuardianOptions } from './../../models/guardian-options';
 import { SequentialLayer } from './../../models/sequential-layer';
+import { LayerOperation } from '../../models/layer-operation';
 
 
-export const RunCustom: LayerOperator<[string, ...any[]]> = (key: string, ...args: any[]) => {
+export const RunCustom = (key: string, ...args: any[]): LayerOperation => {
     if(!CustomRegistryContext.registeredCustomFunctions.has(key)) {
         throw new CustomFunctionNotFound(key)
     }
