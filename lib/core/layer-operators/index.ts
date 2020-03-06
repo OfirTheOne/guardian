@@ -7,3 +7,4 @@ export * from './array-operators';
 export * from './object-operators';
 export * from './existents-operators';
 export * from './regexp-operators';
+export * from './format-operators';
