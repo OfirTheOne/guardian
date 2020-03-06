@@ -11,8 +11,8 @@
     "win32"
   ],
   "keywords": [
-    "@galaxy/guardian",
-    "@galaxy",
+    "@o-galaxy/guardian",
+    "@o-galaxy",
     "guardian",
     "middleware",
     "validation",
