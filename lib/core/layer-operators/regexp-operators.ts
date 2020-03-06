@@ -1,10 +1,10 @@
 
-import { LayerOperator } from './../../models/layer-operator';
 import { GuardianOptions } from './../../models/guardian-options';
 import { SequentialLayer } from './../../models/sequential-layer';
+import { LayerOperation } from '../../models/layer-operation';
 
 
-export const Email : LayerOperator = (text: string) => {
+export const Email = (text: string): LayerOperation  => {
     return (options: Partial<GuardianOptions>) => 
         new SequentialLayer(
             'Email', 
@@ -15,22 +15,23 @@ export const Email : LayerOperator = (text: string) => {
 
 }
 
-
-export const StrongPassword = (text: string) => {
-
-}
-
-
-export const Alpha = (text: string) => {
+/*
+export const StrongPassword = (text: string): LayerOperation  => {
 
 }
 
 
-export const Numeric = (text: string) => {
+export const Alpha = (text: string): LayerOperation  => {
 
 }
 
 
-export const AlphaNumeric = (text: string) => {
+export const Numeric = (text: string): LayerOperation  => {
 
 }
+
+
+export const AlphaNumeric = (text: string): LayerOperation  => {
+
+}
+*/
