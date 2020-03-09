@@ -112,13 +112,13 @@ guardian.run().then(errors => {
 
 [
   {
-    "massege": "name & address are required",
+    "message": "name & address are required",
     "target": null,
     "path": "data.address",
     "layerKey": 1
   },
   {
-    "massege": "all items in list are required",
+    "message": "all items in list are required",
     "target": [
       2,
       null
@@ -180,7 +180,7 @@ on(path: Array<string>): LayerAttacher;
 on(path: string): LayerAttacher;
 ```
 
-A factory method for LayerAttacher object, with `on` method you'r setting the configuration for the validation layer you'r about to create.  
+A factory method for LayerAttacher object, with `on` method you're setting the configuration for the validation layer you're about to create.  
 
 [GuardianOptions reference](####GuardianOptions)
 
@@ -204,7 +204,7 @@ guardian.on({
 orReduction(...keys: Array<string>): void
 ```
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
+By providing the layers keys, `orReduction` will reduce the referenced layers to a single layer, that resolve to true if at least on of the referenced layers resolved to true.
 
 * Example :
 ```ts
