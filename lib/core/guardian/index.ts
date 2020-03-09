@@ -29,7 +29,7 @@ export class Guardian {
     private orReductionGroupStack: Array<{ keys: Set<string>, resolvement: boolean }> = [];
 
     private layersStack: Array<string> = [];
-    private defenitionPool: Map <string, GuardianLayer> = new Map <string, GuardianLayer>();
+    private definitionPool: Map <string, GuardianLayer> = new Map <string, GuardianLayer>();
     private resolvementCache: Map <string, { result: boolean, error?: any}> = new Map <string, { result: boolean, error?: any}>();
 
 
@@ -49,41 +49,41 @@ export class Guardian {
 
         return new LayerAttacher(
             layerOptions,
-            this.defenitionPool,
+            this.definitionPool,
             this.layersStack
         );
     }
 
-    private _pickNewLayerKey(exsitngKeys: Map<string, any>, suggestedKey: string|number) {
+    private _pickNewLayerKey(existingKeys: Map<string, any>, suggestedKey: string|number) {
 
         let layerKey: GuardianOptions['layerKey'] = suggestedKey;
 
         if(suggestedKey == undefined) {
-            layerKey = exsitngKeys.size + 1;
-        } else if(exsitngKeys.has(`${suggestedKey}`)) {
+            layerKey = existingKeys.size + 1;
+        } else if(existingKeys.has(`${suggestedKey}`)) {
             console.warn('duplicate layer key, fallback to layer level.'); 
-            layerKey = (exsitngKeys.size + 1)
+            layerKey = (existingKeys.size + 1)
         }
         return layerKey;
     }
 
     private _handlerInitialLayerOptions(optionsOrPath: string | GuardianOptions | Array<string>): Partial<GuardianOptions> {
-        let leyerOptions: Partial<GuardianOptions>  = {};
+        let layerOptions: Partial<GuardianOptions>  = {};
 
-        let layerKey: GuardianOptions['layerKey'] = this._pickNewLayerKey(this.defenitionPool, undefined);
+        let layerKey: GuardianOptions['layerKey'] = this._pickNewLayerKey(this.definitionPool, undefined);
         if(typeof optionsOrPath == 'string' || Array.isArray(optionsOrPath)) {
-            leyerOptions.path = optionsOrPath;
+            layerOptions.path = optionsOrPath;
         } else {
             if(optionsOrPath.layerKey) {
-                layerKey = this._pickNewLayerKey(this.defenitionPool, optionsOrPath.layerKey);
+                layerKey = this._pickNewLayerKey(this.definitionPool, optionsOrPath.layerKey);
             }
 
-            leyerOptions = {
+            layerOptions = {
                 ...optionsOrPath,
                 layerKey
             }
         }
-        return leyerOptions;
+        return layerOptions;
     }
     private async _execLayer(rootTarget: any, layer: GuardianLayer) {
         try {
@@ -95,7 +95,7 @@ export class Guardian {
                 layerKey
             } = layer.options;
 
-            const { sequances } = layer;
+            const { sequences } = layer;
             
             path = Array.isArray(path) ? path : [path];
             for(let targetPath of path) {
@@ -103,19 +103,26 @@ export class Guardian {
                 const inTarget = getNestedElementByPath(rootTarget, targetPath)
                 let result;
 
-                for(let sequance of sequances) {
-                    const { action } = sequance;
+                for(let sequence of sequences) {
+                    const { action } = sequence;
+
+                    
+
                     // exec function
                     if(each && Array.isArray(inTarget)) {
 
-                        result = await Promise.all(inTarget.map(async targetItem => await action(targetItem)));
+                        result = await Promise.all(
+                            inTarget.map(async targetItem => { 
+                                return await this._execSingleAction(action, targetItem, optional);
+                            })
+                        );
                         result = (result as Array<any>).every(val => val == true)
                     } else {
-                        result = await action(inTarget);
+                        result = await this._execSingleAction(action, inTarget, optional);
                     }
                     // check result
                     if(!result) {
-                        throw { massege: errorMessage, target: inTarget, path: targetPath, layerKey};
+                        throw { message: errorMessage, target: inTarget, path: targetPath, layerKey};
                     }
                 }
 
@@ -128,6 +135,10 @@ export class Guardian {
         }
     }
 
+    private async _execSingleAction(action: Function, value: any, optional: boolean) {
+        return (optional && (value == undefined || value == null)) 
+            || await action(value);
+    }
 
     private _addReductionGroup(keys: Array<string>) {
         const keysSet = new Set<string>(keys);
@@ -140,8 +151,8 @@ export class Guardian {
 
 
     public orReduction(...keys: Array<string>) {
-        const unfoundKeys = keys.filter(k => !this.defenitionPool.has(k));
-        if(unfoundKeys.length) {
+        const notFoundKeys = keys.filter(k => !this.definitionPool.has(k));
+        if(notFoundKeys.length) {
             throw new LayerKeyNotFound(keys);
         }
         this._addReductionGroup(keys);
@@ -154,7 +165,7 @@ export class Guardian {
     public async run() {
 
         const layersStack = this.layersStack;
-        const defenitionPool = this.defenitionPool;
+        const definitionPool = this.definitionPool;
         const errors = [];
 
         // #region - or groups execution
@@ -164,7 +175,7 @@ export class Guardian {
 
     
             for(let layerKey of keysArray) {
-                const layer = defenitionPool.get(`${layerKey}`);
+                const layer = definitionPool.get(`${layerKey}`);
                 
                 if(this.resolvementCache.has(`${layerKey}`)) {
                     // layer was resolved
@@ -204,7 +215,7 @@ export class Guardian {
 
         // #region - single layer execution
         for(let layerKey of layersStack) { 
-            const layer = defenitionPool.get(`${layerKey}`);
+            const layer = definitionPool.get(`${layerKey}`);
 
             try {
                 await this._execLayer(this.target, layer);
@@ -233,8 +244,8 @@ export class Guardian {
 
 
     public disable(layerKey: number|string) {
-        this.defenitionPool.has(`${layerKey}`) ? 
-            this.defenitionPool.get(`${layerKey}`).options.disabled = true :
+        this.definitionPool.has(`${layerKey}`) ? 
+            this.definitionPool.get(`${layerKey}`).options.disabled = true :
             console.warn('layerKey not found.')
 
     }
@@ -243,12 +254,12 @@ export class Guardian {
     public stackSummary(prettyPrint = true): (void | Array<any>) {
 
         const groupSummary = this.orReductionGroupStack
-            .map(group => Array.from(group.keys.values()).map(key => this.defenitionPool.get(key)))
+            .map(group => Array.from(group.keys.values()).map(key => this.definitionPool.get(key)))
             .reduce((acc, groupAsArray, i) =>  [
                 ...acc, 
-                ...groupAsArray.map(({sequances, options}) => ({
+                ...groupAsArray.map(({sequences, options}) => ({
                     Layer: `OR/${i+1}`, 
-                    Name: sequances.map(({name}) => name), 
+                    Name: sequences.map(({name}) => name), 
                     Path: options.path,
                     Key: options.layerKey,
                     
@@ -256,10 +267,10 @@ export class Guardian {
             ] , []);
 
         const singleSummary = this.layersStack
-            .map(key => this.defenitionPool.get(`${key}`))
-            .map(({sequances, options}, i) => ({
+            .map(key => this.definitionPool.get(`${key}`))
+            .map(({sequences, options}, i) => ({
                 Layer: i+1, 
-                Name: sequances.map(({name}) => name), 
+                Name: sequences.map(({name}) => name), 
                 Path: options.path,
                 Key: options.layerKey,
                 
