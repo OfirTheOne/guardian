@@ -8,9 +8,9 @@ export class LayerAttacher {
     
     constructor(
             private stateOptions: Partial<GuardianOptions>, 
-            private defenitionPool: Map <string, GuardianLayer> = new Map <string, GuardianLayer>(),
+            private definitionPool: Map <string, GuardianLayer> = new Map <string, GuardianLayer>(),
             private layersStack: Array<string|Set<string>> ,
-            private onAttchment?: (stateOptions: Partial<GuardianOptions>, sequentialLayer: Array<SequentialLayer>) => void) {
+            private onAttachment?: (stateOptions: Partial<GuardianOptions>, sequentialLayer: Array<SequentialLayer>) => void) {
 
     }
 
@@ -25,13 +25,13 @@ export class LayerAttacher {
             layerKey: `${this.stateOptions.layerKey}:${i}`
         }))
 
-        this.defenitionPool.set(`${layerKey}`, {
+        this.definitionPool.set(`${layerKey}`, {
             options: this.stateOptions as GuardianOptions,
-            sequances: sequentialLayers
+            sequences: sequentialLayers
         });
 
         this.layersStack.push(`${layerKey}`);
-        // this.onAttchment(this.stateOptions, this.sequentialLayers);
+        // this.onAttachment(this.stateOptions, this.sequentialLayers);
     }
 
 }

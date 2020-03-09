@@ -12,6 +12,6 @@ export interface GuardianLayer {
 
     options: GuardianOptions;
 
-    sequances: Array<SequentialLayer>
+    sequences: Array<SequentialLayer>
 
 }
