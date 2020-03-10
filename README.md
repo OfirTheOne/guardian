@@ -5,13 +5,13 @@
 
 ## Validation Module - Follow the Builder pattern.   
 
-* provide an easy validation layers building api.
-* support sync & async validation as one.
-* provide a custom (sync & async) validation method registry, for global app usage. 
-* support a reduction of a validation stack to an express/connect middleware.
-* support typescript from the box.
-* provide OR relation in the validation stack.
-* no dependencies.
+* Provide an easy validation layers building api.
+* Support sync & async validation as one.
+* Provide a custom (sync & async) validation method registry, for global app usage. 
+* Support a reduction of a validation stack to an express/connect middleware.
+* Support typescript from the box.
+* Provide OR relation in the validation stack.
+* No dependencies.
 
 <br>
 <br>
@@ -182,7 +182,7 @@ on(path: string): LayerAttacher;
 
 A factory method for LayerAttacher object, with `on` method you're setting the configuration for the validation layer you're about to create.  
 
-[GuardianOptions reference](####GuardianOptions)
+[GuardianOptions reference](#guardianoptions)
 
 * Example : 
 ```ts
@@ -329,7 +329,7 @@ const guardian = new Guardian();
 
 guardian.on({ 
     path: 'email', 
-    errorMessage: 'email field in requierd.'
+    errorMessage: 'email field is required.'
 }).add([
     NotUndefined(),
     NotNull(),
@@ -373,7 +373,7 @@ interface GuardianOptions {
 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took.
 
 ```ts
-const layerAttcher = guardian.on(...);
+const layerAttacher = guardian.on(...);
 ```
 
 <br>
@@ -381,7 +381,7 @@ const layerAttcher = guardian.on(...);
 
 ### Method
 
-#### `layerAttcher.add()`
+#### `layerAttacher.add()`
 ```ts
 add(operations: LayerOperation): void
 add(operations: Array<LayerOperation>): void
@@ -389,7 +389,7 @@ add(operations: Array<LayerOperation>): void
 
 define a single validation layer with one or more layer-operations. where each operation holds the actual validation logic.
 
-[LayerOperation reference](####LayerOperation)
+[LayerOperation reference](#layeroperation)
 
 
 <br>
@@ -402,7 +402,7 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 
 ```ts
 interface LayerOperation {
-    (optionas: Partial<GuardianOptions>): SequentialLayer
+    (options: Partial<GuardianOptions>): SequentialLayer
 }
 ```
 
