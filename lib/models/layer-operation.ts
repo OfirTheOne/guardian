@@ -3,5 +3,5 @@ import { GuardianOptions } from "./guardian-options";
 
 // export type LayerOperation = (optionas: Partial<GuardianOptions>) => SequentialLayer;
 export interface LayerOperation {
-    (optionas: Partial<GuardianOptions>): SequentialLayer
+    (options: Partial<GuardianOptions>): SequentialLayer
 }
