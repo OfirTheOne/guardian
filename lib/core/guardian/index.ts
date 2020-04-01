@@ -92,53 +92,79 @@ export class Guardian {
                 path = [''], 
                 optional = false, 
                 errorMessage,
-                layerKey
+                layerKey,
+                ignoreHooks = false
             } = layer.options;
 
             const { sequences } = layer;
             
-            path = Array.isArray(path) ? path : [path];
-            for(let targetPath of path) {
+            const pathAsArray = Array.isArray(path) ? path : [path];
+            for(let i = 0; i < pathAsArray.length; i++) {
+                let targets = []
+                let targetPath = pathAsArray[i];
                 // get target
-                const inTarget = getNestedElementByPath(rootTarget, targetPath)
+                const inTarget = getNestedElementByPath(rootTarget, targetPath);
+                targets.push(inTarget);
                 let result;
 
                 for(let sequence of sequences) {
-                    const { action } = sequence;
-
-                    
+                    const { action, name, onErrorActions, onResolveActions } = sequence;
 
                     // exec function
-                    if(each && Array.isArray(inTarget)) {
+                    result = await this._execAction(action, inTarget, optional, each);
 
-                        result = await Promise.all(
-                            inTarget.map(async targetItem => { 
-                                return await this._execSingleAction(action, targetItem, optional);
-                            })
-                        );
-                        result = (result as Array<any>).every(val => val == true)
-                    } else {
-                        result = await this._execSingleAction(action, inTarget, optional);
-                    }
                     // check result
                     if(!result) {
+                        if(!ignoreHooks) {
+                            await Promise.all(onErrorActions.map(onError => onError({ 
+                                target: inTarget, 
+                                name, 
+                                root: rootTarget 
+                            })))
+                        }
                         throw { message: errorMessage, target: inTarget, path: targetPath, layerKey};
                     }
+
+                    // exec resolve hook
+                    if(!ignoreHooks && i == pathAsArray.length-1) {
+                        await Promise.all(onResolveActions.map(onResolve => onResolve({ 
+                            target: Array.isArray(path)? targets : targets[0], 
+                            name,
+                            root: rootTarget
+                        })))
+                    }
+
                 }
-
-    
             }
-
 
         } catch(error) {
             throw error;
         }
     }
 
+    private async _execAction(action: Function, value: any, optional: boolean, each: boolean) {
+
+        let result;
+        if(each && Array.isArray(value)) { // execute the action on array of targets
+
+            result = await Promise.all(
+                value.map(async targetItem => { 
+                    return await this._execSingleAction(action, targetItem, optional);
+                })
+            );
+            result = (result as Array<any>).every(val => val == true)
+        } else {
+            result = await this._execSingleAction(action, value, optional);
+        }
+        return result;
+    }
     private async _execSingleAction(action: Function, value: any, optional: boolean) {
         return (optional && (value == undefined || value == null)) 
             || await action(value);
     }
+
+
+
 
     private _addReductionGroup(keys: Array<string>) {
         const keysSet = new Set<string>(keys);

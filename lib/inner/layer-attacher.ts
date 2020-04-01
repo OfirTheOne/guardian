@@ -20,10 +20,14 @@ export class LayerAttacher {
 
         const {layerKey} = this.stateOptions;
 
-        const sequentialLayers: Array<SequentialLayer> = operationsAsArray.map((op, i) => op({
-            ...this.stateOptions,
-            layerKey: `${this.stateOptions.layerKey}:${i}`
-        }))
+        // const coreOperations = operationsAsArray.map(op => op.coreOperation);
+        const sequentialLayers: Array<SequentialLayer> = operationsAsArray.map((op, i) => 
+                op.coreOperation(
+                    { ...this.stateOptions, layerKey: `${this.stateOptions.layerKey}:${i}` },
+                    op.onErrorActions, 
+                    op.onResolveActions
+                )
+            );
 
         this.definitionPool.set(`${layerKey}`, {
             options: this.stateOptions as GuardianOptions,

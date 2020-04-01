@@ -2,25 +2,34 @@
 import { SequentialLayer } from '../../models/sequential-layer';
 import { GuardianOptions } from '../../models/guardian-options';
 import { LayerOperation } from '../../models/layer-operation';
+import { OnErrorAction, OnResolveAction } from '../../models/operation-hooks';
 
 
 
 export const NotUndefined = (): LayerOperation => {
-    return (options: Partial<GuardianOptions>) => 
-        new SequentialLayer(
-            'NotUndefined',
-            (o: any) => o != undefined,
-            options
-        );
-    
+    return new LayerOperation(
+        (options: Partial<GuardianOptions>, onErrorActions: OnErrorAction[], onResolveActions: OnResolveAction[]) =>
+            new SequentialLayer(
+                'NotUndefined',
+                (o: any) => o != undefined,
+                options,
+                onErrorActions,
+                onResolveActions,
+            )
+    )
+
 }
 
 export const NotNull = (): LayerOperation => {
-    return (options: Partial<GuardianOptions>) => 
-        new SequentialLayer(
-            'NotNull',
-            (o: any) => o != null,
-            options
-        );
-    
+    return new LayerOperation(
+        (options: Partial<GuardianOptions>, onErrorActions: OnErrorAction[], onResolveActions: OnResolveAction[]) =>
+            new SequentialLayer(
+                'NotNull',
+                (o: any) => o != null,
+                options,
+                onErrorActions,
+                onResolveActions,
+            )
+    )
+
 }

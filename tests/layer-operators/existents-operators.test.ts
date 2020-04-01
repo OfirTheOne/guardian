@@ -25,7 +25,7 @@ describe('Existents Operators', function () {
         ];
 
 
-        const sequentialLayer = (operator())(undefined)
+        const sequentialLayer =  (operator()).coreOperation(undefined, [], [])
         const { action, name } = sequentialLayer;
 
         expect(name).to.be.eql('NotNull')
@@ -35,7 +35,6 @@ describe('Existents Operators', function () {
         }
 
     });
-
 
     it('NotUndefined Operator', function () {
 
@@ -48,7 +47,7 @@ describe('Existents Operators', function () {
         ];
 
 
-        const sequentialLayer = (operator())(undefined)
+        const sequentialLayer = (operator()).coreOperation(undefined, [], [])
         const { action, name } = sequentialLayer;
 
         expect(name).to.be.eql('NotUndefined')
@@ -58,6 +57,7 @@ describe('Existents Operators', function () {
         }
 
     });
+    
 })
 
 

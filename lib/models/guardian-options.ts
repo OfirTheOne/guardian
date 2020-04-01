@@ -5,4 +5,6 @@ export interface GuardianOptions {
     each?: boolean;
     disabled?: boolean
     path: string | Array<string>;
+    ignoreHooks?: boolean
+
 }
